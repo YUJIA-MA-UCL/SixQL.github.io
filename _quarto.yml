@@ -1,5 +1,5 @@
 project:
-  type: website
+  type: book
   output-dir: docs
 
 book:
@@ -15,7 +15,7 @@ book:
   favicon: favicon.ico
   sidebar:
     logo: logo.png
-
+  base-url: /SixQL.github.io
 
 
 format:
