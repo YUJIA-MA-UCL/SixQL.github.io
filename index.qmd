@@ -8,21 +8,40 @@ Fill in the sections below to provide a brief summary of your project. Each sect
 
 What is the problem you’re trying to address using this application? 
 
+The Russian-Ukrainian war caused a lot of damage to buildings and roads. This application analyses the extent of damage to buildings and roads in Kharkiv and Mariupol, one of the most severely damaged cities. The system will rely on the GEE platform, combined with the T-test, to quantify the types of damaged buildings and roads, the damaged area of different types of buildings and the length of damaged roads, and to provide a scientific basis for decision-making in post-disaster reconstruction, resource allocation and urban planning.
+
+
 ### End User 
 
 Who are you building this application for? How does it address a need this community has?
+
+The end-users of the system include: 
+1. Government and administration departments (e.g. urban planning, post-disaster reconstruction and emergency management agencies in Ukraine);
+2. Humanitarian organisations (e.g. United Nations Office for the Coordination of Humanitarian Affairs) 
+3. Scientific research institutes engaged in urban studies and disaster assessment. 
 
 ### Data
 
 What data are you using? 
 
+We used data from 
++ Building Footprints data from [Overture Maps Foundation](https://docs.overturemaps.org/guides/buildings/#14/32.58453/-117.05154/0/60) ;
++ Road Network data from OSM?
++ Sentinel-1 data from [Google Earth Engine](https://developers.google.com/earth-engine/guides/sentinel1). 
+
 ### Methodology
 
 How are you using this data to address the problem?
 
+1. T-Test on S1 images 
+
+2. Building and Road Classification 
+
 ### Interface
 
 How does your application's interface work to address the needs of your end user?
+
+
 
 ## The Application 
 
