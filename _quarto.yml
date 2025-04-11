@@ -1,6 +1,7 @@
 project:
-  type: book
+  type: website
   output-dir: docs
+  base-url: /SixQL.github.io/docs
 
 book:
   title: "CASA0025 Final Assessment"
