@@ -5,12 +5,13 @@ project:
 book:
   title: "CASA0025 Final Assessment"
   author: "SixQL"
-  date: "11/04/2025"
+  date: "15/04/2025"
   chapters:
     - index.qmd
 
   repo-actions: [edit]
   downloads: [pdf, epub]
+  sharing: [twitter, facebook]
   favicon: favicon.ico
   sidebar:
     logo: logo.png
