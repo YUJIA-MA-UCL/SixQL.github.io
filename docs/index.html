@@ -156,18 +156,25 @@ window.Quarto = {
 <section id="problem-statement" class="level3">
 <h3 class="anchored" data-anchor-id="problem-statement">Problem Statement</h3>
 <p>What is the problem you’re trying to address using this application?</p>
+<p>The Russian-Ukrainian war caused a lot of damage to buildings and roads. This application analyses the extent of damage to buildings and roads in Kharkiv and Mariupol, one of the most severely damaged cities. The system will rely on the GEE platform, combined with the T-test, to quantify the types of damaged buildings and roads, the damaged area of different types of buildings and the length of damaged roads, and to provide a scientific basis for decision-making in post-disaster reconstruction, resource allocation and urban planning.</p>
 </section>
 <section id="end-user" class="level3">
 <h3 class="anchored" data-anchor-id="end-user">End User</h3>
 <p>Who are you building this application for? How does it address a need this community has?</p>
+<p>The end-users of the system include: 1. Government and administration departments (e.g.&nbsp;urban planning, post-disaster reconstruction and emergency management agencies in Ukraine); 2. Humanitarian organisations (e.g.&nbsp;United Nations Office for the Coordination of Humanitarian Affairs) 3. Scientific research institutes engaged in urban studies and disaster assessment.</p>
 </section>
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
 <p>What data are you using?</p>
+<p>We used data from + Building Footprints data from <a href="https://docs.overturemaps.org/guides/buildings/#14/32.58453/-117.05154/0/60">Overture Maps Foundation</a> ; + Road Network data from OSM? + Sentinel-1 data from <a href="https://developers.google.com/earth-engine/guides/sentinel1">Google Earth Engine</a>.</p>
 </section>
 <section id="methodology" class="level3">
 <h3 class="anchored" data-anchor-id="methodology">Methodology</h3>
 <p>How are you using this data to address the problem?</p>
+<ol type="1">
+<li><p>T-Test on S1 images</p></li>
+<li><p>Building and Road Classification</p></li>
+</ol>
 </section>
 <section id="interface" class="level3">
 <h3 class="anchored" data-anchor-id="interface">Interface</h3>
