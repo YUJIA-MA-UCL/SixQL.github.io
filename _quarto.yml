@@ -27,3 +27,8 @@ format:
     code-overflow: wrap
     highlight-style: monokai.theme
     linkcolor: "#34a832"
+  navbar:
+    right:
+      - text: "Open in GitHub"
+        icon: github
+        href: https://github.com/YUJIA-MA-UCL/SixQL.github.io
