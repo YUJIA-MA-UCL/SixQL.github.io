@@ -2,6 +2,14 @@ project:
   type: website
   output-dir: docs
 
+website:
+  title: "Assessing Urban War Damage in Kharkiv and Mariupol, Ukraine Using Sentinel-1 Imagery"
+  navbar:
+    right:
+      - text: "Open in GitHub"
+        icon: github
+        href: https://github.com/YUJIA-MA-UCL/SixQL.github.io
+        
 book:
   title: "CASA0025 Final Assessment"
   author: "SixQL"
@@ -27,8 +35,3 @@ format:
     code-overflow: wrap
     highlight-style: monokai.theme
     linkcolor: "#34a832"
-  navbar:
-    right:
-      - text: "Open in GitHub"
-        icon: github
-        href: https://github.com/YUJIA-MA-UCL/SixQL.github.io
