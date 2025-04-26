@@ -1,63 +1,62 @@
-# CASA00025 Group Project Title Here
+# Assessing Urban War Damage in Kharkiv and Mariupol, Ukraine Using Sentinel-1 Imagery
 
-## Project Summary 
+## Project Summary
 
 Fill in the sections below to provide a brief summary of your project. Each section should have no more than 100 words. Do not edit any of the headings.
 
-### Problem Statement 
+### Problem Statement
 
-What is the problem you’re trying to address using this application? 
+What is the problem you’re trying to address using this application?
 
-The Russian-Ukrainian war caused a lot of damage to buildings and roads. This application analyses the extent of damage to buildings and roads in Kharkiv and Mariupol, one of the most severely damaged cities. The system will rely on the GEE platform, combined with the T-test, to quantify the types of damaged buildings and roads, the damaged area of different types of buildings and the length of damaged roads, and to provide a scientific basis for decision-making in post-disaster reconstruction, resource allocation and urban planning.
+This application addresses the need for transparent, cost-effective tools to assess infrastructure damage in urban areas affected by the Russia–Ukraine war. It focuses on Kharkiv and Mariupol, the two most affected cities, and estimates building and road damage using a lightweight, unsupervised pixel-wise t-test on freely available Sentinel-1 imagery. Although the war is ongoing, our analysis focuses on the year before and after February 24, 2022, when the full-scale invasion began. Unlike deep learning approaches requiring expensive optical imagery, this method supports repeatable, scalable, and interpretable analysis. The results can assist post-war reconstruction planning, guide humanitarian aid, and inform public understanding of urban destruction patterns in these cities.
 
-
-### End User 
+### End User
 
 Who are you building this application for? How does it address a need this community has?
 
-The end-users of the system include: 
-1. Government and administration departments (e.g. urban planning, post-disaster reconstruction and emergency management agencies in Ukraine);
-2. Humanitarian organisations (e.g. United Nations Office for the Coordination of Humanitarian Affairs) 
-3. Scientific research institutes engaged in urban studies and disaster assessment. 
+1.  Government and planning departments: Initial analyze damage patterns and damage to specific facilities (e.g. housing, hospitals) to prioritise reconstruction and allocate resources effectively.
+2.  Humanitarian organisations: Quickly identify severely damaged areas and assess damage to critical infrastructure and residential areas to provide guidance for emergency shelter, public health and logistics planning.
+3.  Remote sensing and disaster assessment professionals: Use damage data to validate models, track changes, and compare methods or datasets in disaster impact studies.
+4.  Public and media: Explore clear, visual maps of war damage, thereby raising public awareness, and can provide data to support news reporting.
 
 ### Data
 
-What data are you using? 
+What data are you using?
 
-We used data from 
-+ Building Footprints data from [Overture Maps Foundation](https://docs.overturemaps.org/guides/buildings/#14/32.58453/-117.05154/0/60) ;
-+ Road Network data from OSM?
-+ Sentinel-1 data from [Google Earth Engine](https://developers.google.com/earth-engine/guides/sentinel1). 
+-   Sentinel-1 Imagery\
+    This application uses Sentinel-1 Imagery provided by [Google Earth Engine](https://developers.google.com/earth-engine/guides/sentinel1). To simplify processing and prioritize sensitivity to structural damage, only VH-polarized imagery was used. The data spans February 24, 2020 to February 24, 2023, covering placebo, pre-war, and war phases. From February 2022, imagery was compared monthly to capture temporal changes in damage.
+
+-   Building Footprints\
+    Building footprint data is sourced from the [Overture Maps Foundation](https://docs.overturemaps.org/guides/buildings/#14/32.58453/-117.05154/0/60), which combines several open datasets, primarily from OpenStreetMap, Microsoft, and Google Open Buildings. Buildings smaller than 50 m² were excluded due to potential building false positives and the resolution of Sentinel-1.
+
+-   Road Networks\
+    The road network data was retrieved from [OpenStreetMap](https://www.openstreetmap.org) using the OSMnx package in Python, extracting roads classified as trunk, primary, secondary, and tertiary, and simplifying bidirectional edges.
 
 ### Methodology
 
 How are you using this data to address the problem?
 
-We used Sentinel-1 SAR imagery to perform a pixel statistical test (t-test) for pre- and post-war changes, identifying potential damage on the map. 
-Overlaying the building footprints and road network data with t-test results to locate and classify damage, and calculate the percentage of damaged buildings and roads, and different subtypes of damaged buildings at 95% confidence intervals. 
-Through monthly monitoring of post-war damages for 12 months after 2022-2-24, the evolution of the war impact will be tracked, and user can select different times to view changes in damages. 
-These features will support urban damage assessment and post-war reconstruction planning.
+We used Sentinel-1 SAR imagery to perform a pixel statistical test (t-test) for pre- and post-war changes, identifying potential damage on the map. Overlaying the building footprints and road network data with t-test results to locate and classify damage, and calculate the percentage of damaged buildings and roads, and different subtypes of damaged buildings at 95% confidence intervals. Through monthly monitoring of post-war damages for 12 months after 2022-2-24, the evolution of the war impact will be tracked, and user can select different times to view changes in damages. These features will support urban damage assessment and post-war reconstruction planning.
 
 ### Interface
 
 How does your application's interface work to address the needs of your end user?
 
-
-
-## The Application 
+## The Application
 
 Replace the link below with the link to your application.
 
-:::{.column-page}
+::: column-page
+<iframe src=" https://ee-yiyaocui.projects.earthengine.app/view/ukraine-buildings-and-roads-damage-assessment" width="100%" height="700px">
 
-<iframe src=' https://ee-yiyaocui.projects.earthengine.app/view/ukraine-buildings-and-roads-damage-assessment' width='100%' height='700px'></iframe>
-
+</iframe>
 :::
-## How it Works 
+
+## How it Works
 
 Use this section to explain how your application works using code blocks and text explanations (no more than 500 words excluding code):
 
-```js
+``` js
 Map.setCenter(35.51898, 33.90153, 15);
 
 Map.setOptions("satellite");
@@ -69,7 +68,4 @@ You can include images:
 
 ![Pixelwise T-Test, 2018](images/beirut_change_2020.jpg)
 
-and math:
-$$ \Large t = {\frac{\overline{x_1}-\overline{x_2}} {\sqrt{\frac{s^2_1}{n_1} + \frac{s^2_2}{n_2}}}} $$
-
-
+and math: $$ \Large t = {\frac{\overline{x_1}-\overline{x_2}} {\sqrt{\frac{s^2_1}{n_1} + \frac{s^2_2}{n_2}}}} $$
