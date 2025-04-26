@@ -1,0 +1,148 @@
+---
+title: "Building Footprint Extraction"
+output: html_document
+date: "2025-04-26"
+---
+
+```{r}
+library(arrow)
+library(sf)
+library(dplyr)
+library(units)
+```
+
+```{r}
+buildings <- open_dataset('s3://overturemaps-us-west-2/release/2025-03-19.1/theme=buildings')
+```
+
+```{r}
+city_boundary <- st_read("unosat_aois.shp")
+```
+
+## Mariupol
+
+```{r}
+sf_bbox1 <- city_boundary %>% 
+  filter(aoi == "UKR1") %>% 
+  st_bbox() %>% 
+  as.vector()
+
+
+ukr1_buildings <- buildings |>
+  filter(bbox$xmin > sf_bbox1[1],
+         bbox$ymin > sf_bbox1[2],
+         bbox$xmax < sf_bbox1[3],
+         bbox$ymax < sf_bbox1[4]) |>
+  select(id, geometry, subtype, class, height, num_floors, facade_material, roof_material) |> 
+  collect() |>
+  st_as_sf(crs = 4326)
+```
+
+```{r}
+city_UKR1 <- city_boundary %>% 
+  filter(aoi == "UKR1")
+```
+
+```{r}
+ukr1_buildings <- st_intersection(ukr1_buildings, city_UKR1)
+```
+
+```{r}
+print(ukr1_buildings)
+```
+
+```{r}
+ukr1_buildings_filtered <- ukr1_buildings %>%
+  st_transform(crs = 3035) %>%
+  mutate(area = st_area(.)) %>%
+  filter(area > set_units(50, m^2))
+```
+
+```{r}
+print(ukr1_buildings_filtered)
+```
+
+```{r}
+ukr1_buildings_filtered_wgs84 <- st_transform(ukr1_buildings_filtered, crs = 4326)
+```
+
+```{r}
+plot(st_geometry(city_UKR1),
+     col = NA, 
+     border = "blue",
+     main = "UKR1 - Precise Intersection")
+plot(st_geometry(ukr1_buildings_filtered_wgs84),
+     col = "red", 
+     add = TRUE)
+```
+
+```{r}
+st_write(ukr1_buildings_filtered_wgs84, "ukr1.shp", delete_dsn = TRUE)
+```
+
+## Kharkiv
+
+```{r}
+sf_bbox7 <- city_boundary %>% 
+  filter(aoi == "UKR7") %>% 
+  st_bbox() %>% 
+  as.vector()
+
+
+ukr7_buildings <- buildings |>
+  filter(bbox$xmin > sf_bbox7[1],
+         bbox$ymin > sf_bbox7[2],
+         bbox$xmax < sf_bbox7[3],
+         bbox$ymax < sf_bbox7[4]) |>
+  select(id, geometry, subtype, class, height, num_floors, facade_material, roof_material) |> 
+  collect() |>
+  st_as_sf(crs = 4326)
+```
+
+```{r}
+city_UKR7 <- city_boundary %>% 
+  filter(aoi == "UKR7")
+```
+
+```{r}
+ukr7_buildings <- st_intersection(ukr7_buildings, city_UKR7)
+```
+
+```{r}
+print(ukr7_buildings)
+```
+
+```{r}
+ukr7_buildings_filtered <- ukr7_buildings %>%
+  st_transform(crs = 3035) %>%
+  mutate(area = st_area(.)) %>%
+  filter(area > set_units(50, m^2))
+```
+
+```{r}
+print(ukr7_buildings_filtered)
+```
+
+```{r}
+ukr7_buildings_filtered_wgs84 <- st_transform(ukr7_buildings_filtered, crs = 4326)
+```
+
+```{r}
+plot(st_geometry(city_UKR7),
+     col = NA, 
+     border = "blue",
+     main = "UKR7 - Precise Intersection")
+plot(st_geometry(ukr7_buildings_filtered_wgs84),
+     col = "red", 
+     add = TRUE)
+```
+
+```{r}
+st_write(ukr7_buildings_filtered_wgs84, "ukr7.shp", delete_dsn = TRUE)
+```
+
+```{r}
+ukr7_buildings_df <- st_drop_geometry(ukr7_buildings_filtered_wgs84)
+
+write.csv(ukr7_buildings_df, "ukr7_buildings.csv", row.names = FALSE)
+```
