@@ -33,9 +33,7 @@ We used data from
 
 How are you using this data to address the problem?
 
-1. T-Test on S1 images 
-
-2. Building and Road Classification 
+We used Sentinel-1 SAR imagery to perform a pixel statistical test (t-test) for pre- and post-war changes, identifying potential damage on the map. Overlaying the building footprints and road network data with t-test results to locate and classify damage, and calculate the percentage of damaged buildings and roads, and different subtypes of damaged buildings at 95% confidence intervals. Through monthly monitoring of post-war damages for 12 months after 2022-2-24, the evolution of the war impact will be tracked, and user can select different times to view changes in damages. These features will support urban damage assessment and post-war reconstruction planning.
 
 ### Interface
 
