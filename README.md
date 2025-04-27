@@ -2,11 +2,11 @@
 
 ### Project : Assessing Urban War Damage in Kharkiv and Mariupol, Ukraine Using Sentinel-1 Imagery
 
-**🌐 The Webpage of the project is available [here]().**
+**🌐 The Webpage of the project is available [here](https://yujia-ma-ucl.github.io/SixQL.github.io/).**
 
 **🌍 The Application is available [here](https://ee-yiyaocui.projects.earthengine.app/view/ukraine-buildings-and-roads-damage-assessment).**
 
-**👩🏻‍💻 The full Earth Engine code is available [here](https://code.earthengine.google.com/03e1d7092730174f543185a109971cbc?accept_repo=users%2Flittlevivif%2Fsiyuan).**
+**👩🏻‍💻 The full Earth Engine code is available [here](https://code.earthengine.google.com/1d28157046b90fe381378e9c4c2e2a6b?accept_repo=users%2Flittlevivif%2Fsiyuan).**
 
 ## Contribution: 
 
