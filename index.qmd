@@ -2,8 +2,6 @@
 
 ## Project Summary
 
-Fill in the sections below to provide a brief summary of your project. Each section should have no more than 100 words. Do not edit any of the headings.
-
 ### Problem Statement
 
 What is the problem you’re trying to address using this application?
@@ -14,10 +12,10 @@ This application addresses the need for transparent, cost-effective tools to ass
 
 Who are you building this application for? How does it address a need this community has?
 
-1.  Government and planning departments: Initial analyze damage patterns and damage to specific facilities (e.g. housing, hospitals) to prioritise reconstruction and allocate resources effectively.
-2.  Humanitarian organisations: Quickly identify severely damaged areas and assess damage to critical infrastructure and residential areas to provide guidance for emergency shelter, public health and logistics planning.
-3.  Remote sensing and disaster assessment professionals: Use damage data to validate models, track changes, and compare methods or datasets in disaster impact studies.
-4.  Public and media: Explore clear, visual maps of war damage, thereby raising public awareness, and can provide data to support news reporting.
+-   Government and planning departments: Initial analyze damage patterns and damage to specific facilities (e.g. housing, hospitals) to prioritise reconstruction and allocate resources effectively.
+-   Humanitarian organisations: Quickly identify severely damaged areas and assess damage to critical infrastructure and residential areas to provide guidance for emergency shelter, public health and logistics planning.
+-   Remote sensing and disaster assessment professionals: Use damage data to validate models, track changes, and compare methods or datasets in disaster impact studies.
+-   Public and media: Explore clear, visual maps of war damage, thereby raising public awareness, and can provide data to support news reporting.
 
 ### Data
 
@@ -54,12 +52,14 @@ The application provides clear, visual maps of war damage, enabling the public a
 
 ## How it Works
 
-### Data Input and Processing
+Full code can be found [here](https://code.earthengine.google.com/1d28157046b90fe381378e9c4c2e2a6b?accept_repo=users%2Flittlevivif%2Fsiyuan).
+
+### 1. Data Input and Processing
 
 We imported the vector data, including building footprints with building type information and 7.5-meter-wide rectangular road layers, and merged the data from two cities.
 
 ```js
-// ------------------------------------------------- Import Data  ---------------------------------------------- 
+// ----------------------- Import Data -----------------------  
 // Building footprint
 var buildings_ukr1 = ee.FeatureCollection("projects/ee-yiyaocui/assets/ukr1");
 var buildings_ukr7 = ee.FeatureCollection("projects/ee-yiyaocui/assets/ukr7");
@@ -82,7 +82,7 @@ Then, we set up our area of interest (AOI), time range, and map’s centroids. F
 We defined a updateDateRanges() function to flexibly select an assessment window for the interactive tool.
 
 ``` js
-// ------------------------------------------------- Set-up  ---------------------------------------------- 
+// ----------------------- Set-up  -----------------------
 //AOI
 var cityBoundaries = ee.FeatureCollection("projects/ee-yiyaocui/assets/unosat_aois")
   .style({
@@ -121,7 +121,9 @@ var mariupolCenter = ee.Geometry.Point([37.59269, 47.09966]);
 Map.centerObject(mariupolCenter, 14);
 ```
 
-Based on the tutorial code from CASA0025 Week 9 (Ballinger, O. (2024)), we used the following equation to compute the t-value for each pixel, comparing radar backscatter values before and after the war:
+### 2. T-test
+
+Based on the tutorial code from CASA0025 Week 9 *(Ballinger, O., 2024)*, we used the following equation to compute the t-value for each pixel, comparing radar backscatter values before and after the war:
 
 $$ \Large t = {\frac{\overline{x_1}-\overline{x_2}} {\sqrt{\frac{s^2_1}{n_1} + \frac{s^2_2}{n_2}}}} $$
 
@@ -135,7 +137,7 @@ Where:
 This approach helps quantify whether observed changes are statistically significant and is particularly useful when ground-truth data is limited. Finally, a t-value greater than 2.5 indicates a significant change at the 99% confidence level.
 
 ``` js
-// -------------------------------------- TTest function  ----------------------------------------------
+// ----------------------- TTest function  -----------------------
 // t-test function (building analysis)
 function ttest(s1, shock, pre_interval, post_interval) {
   // Convert event date to ee.Date object
@@ -185,10 +187,10 @@ function ttest(s1, shock, pre_interval, post_interval) {
 }
 ```
 
-We filter Sentinel-1 radar images by selecting the VH polarization band and the most common orbit number, then separately process ASCENDING and DESCENDING orbits to reduce directional noise. Also, we use NDVI to reduce vegetation disturbance (NDVI \> 0.2: vegetation)(Wang, X. and Li, P. (2020), USGS (2018)).
+We filter Sentinel-1 radar images by selecting the VH polarization band and the most common orbit number, then separately process ASCENDING and DESCENDING orbits to reduce directional noise. Also, we use NDVI to reduce vegetation disturbance (NDVI \> 0.2: vegetation)*(Wang, X.&Li, P., 2020; USGS,2018)*.
 
 ``` js
-// ---------------------------------------------- Satellite Image  ----------------------------------------------
+// ----------------------- Satellite Image -----------------------
 // Select Sentinel 1 images collection for analysis
 function filter_s1(path) {
   var s1 = ee
@@ -234,7 +236,7 @@ var composite_image = asc_des.where(ndvi_mask, 0);
 Then we overlay the t-test output with building and road layers to estimate the number of damaged buildings and roads in each city. As roads are sensitive to neighboring pixels, we defined damaged roads with at least 50% significant pixels.
 
 ``` js
-// ----------------------------------------------- Analysis  ----------------------------------------------
+// ----------------------- Analysis -----------------------
 
 // Select significant pixel where t-value is positive (99% confidence interval)
 var threshold = composite_image.updateMask(composite_image.gt(0));
@@ -252,7 +254,7 @@ var damaged_roads = threshold.reduceRegions({
   scale: 10
 });
 
-// -------------------------------------- Calculation  ----------------------------------------------
+// ----------------------- Calculation -----------------------
 // Calculate the number of damaged buildings/roads by cities 
 //Buildings
 var mariupol_buildings = damaged_building.filterBounds(ukr1).filter(ee.Filter.gt("mean", 0));
@@ -264,12 +266,12 @@ var mariupol_roads = damaged_roads.filterBounds(ukr1).filter(ee.Filter.gt("mean"
 var kharkiv_roads = damaged_roads.filterBounds(ukr7).filter(ee.Filter.gt("mean", 0.5));
 var total_roads = mariupol_roads.merge(kharkiv_roads);
 
-// -------------------------------------- Visualization ----------------------------------------------
+// ----------------------- Visualization -----------------------
 // Define color palettes for damaged buildings and roads
 var palette = ["FFFFFF", "3b528b", "21918c", "5ec962", "fde725"];
 var building_palette = ["FFF3D6", "FFDD9E", "FFBE66", "FF9A3D", "FF7519", "FF5100", "FD3000"]; 
 
-// --------------------------------------  Layers ----------------------------------------------
+// ----------------------- Layers -----------------------
 //ttest
 Map.addLayer(
   composite_image,
@@ -331,7 +333,7 @@ Map.addLayer(
 Map.addLayer(cityBoundaries, {}, 'adminboundaries');
 ```
 
-## Validations & Limitations
+### 3. Validations & Limitations
 
 | Color Icon | Color Name       | Damage Level        |
 |:-----------|:-----------------|:--------------------|
@@ -340,33 +342,29 @@ Map.addLayer(cityBoundaries, {}, 'adminboundaries');
 | 🟡🟠        | Yellow / Orange    | Medium damage       |
 | 🔴         | Red               | High levels of damage |
 
-## Placebo Test
+#### 3.1. Placebo Test
 
-![Placebo_Test_1](images/Placebo_Test_1.jpg)
-![Placebo_Test_2](images/Placebo_Test_2.jpg)
+![Placebo_Test_1](https://raw.githubusercontent.com/YUJIA-MA-UCL/SixQL.github.io/refs/heads/main/images/Placebo_Test_1.jpg)
+![Placebo_Test_2](https://raw.githubusercontent.com/YUJIA-MA-UCL/SixQL.github.io/refs/heads/main/images/Placebo_Test_2.jpg)
 
 The placebo test showed cumulative natural disturbances, stronger and seasonal in Kharkiv, and mainly industrial in Mariupol, with visible improvement after vegetation removal.
 
-## T-Test Image Validation by Detection
+#### 3.2. T-Test Image Validation by Detection
 
 In the t-test evaluations, our method effectively identified large-scale damage to buildings and roads, supported by the prior separation of built-up areas from open green spaces. 
 
-![T_Test_1](images/T_Test_1.jpg)
-![T_Test_2](images/T_Test_2.jpg)
+![T_Test_1](https://raw.githubusercontent.com/YUJIA-MA-UCL/SixQL.github.io/refs/heads/main/images/T_Test_1.jpg)
+![T_Test_2](https://raw.githubusercontent.com/YUJIA-MA-UCL/SixQL.github.io/refs/heads/main/images/T_Test_2.jpg)
 
 In Area A, structural damage was accurately detected without interference from surrounding vegetation; in Area B, major building footprint damage was captured with slight spatial overflow; and in Area C, gaps between adjacent row houses were clearly distinguished. On roads, the model correctly detected heavily damaged sections alongside buildings in Area D, but misclassified a functioning road in Area E as moderately damaged.
 
----
-
-## T-Test Image Validation with UNOSAT Data
+#### 3.3. T-Test Image Validation with UNOSAT Data
 
 In addition, we compared our outcome to UNOSAT Ground truth datasets to validate the model's performance to detect damaged buildings by spatially interactive matching. *(UNOSAT, cited in Dietrich et al., 2025)*
 
----
+##### Results
 
-## Results
-
-### Mariupol with 99% confidence interval
+###### Mariupol with 99% confidence interval
 
 | Metric        | Value  |
 |:--------------|:-------|
@@ -380,9 +378,7 @@ In addition, we compared our outcome to UNOSAT Ground truth datasets to validate
 | Accuracy      | 0.6124 |
 | F1 Score      | 0.4684 |
 
----
-
-### Mariupol with 95% confidence interval
+###### Mariupol with 95% confidence interval
 
 | Metric        | Value  |
 |:--------------|:-------|
@@ -396,9 +392,7 @@ In addition, we compared our outcome to UNOSAT Ground truth datasets to validate
 | Accuracy      | 0.5318 |
 | F1 Score      | 0.4589 |
 
----
-
-### Kharkiv with 99% confidence interval
+###### Kharkiv with 99% confidence interval
 
 | Metric        | Value  |
 |:--------------|:-------|
@@ -412,9 +406,7 @@ In addition, we compared our outcome to UNOSAT Ground truth datasets to validate
 | Accuracy      | 0.5075 |
 | F1 Score      | 0.0234 |
 
----
-
-### Kharkiv with 95% confidence interval
+###### Kharkiv with 95% confidence interval
 
 | Metric        | Value  |
 |:--------------|:-------|
@@ -427,7 +419,6 @@ In addition, we compared our outcome to UNOSAT Ground truth datasets to validate
 | Specificity   | 0.3727 |
 | Accuracy      | 0.3764 |
 | F1 Score      | 0.0202 |
-```
 
 Conclusively, using a 99% confidence interval improved predictive performance. In Mariupol, the F1 score reached 0.4684, demonstrating reasonable effectiveness, while Kharkiv's F1 score remained low at 0.0234.
 
@@ -435,8 +426,10 @@ Performance limitations were likely linked to natural disturbances, pixel spill-
 
 While the method remains valuable for preliminary screening by international organisations, future improvements should prioritize refined preprocessing, clearer damage definitions, multi-temporal validation, and the potential integration of supervised learning techniques to enhance overall accuracy.
 
-### User Interface
+### 4. User Interface
+
 The following part is the code for UI design.
+
 ```js
 // ------------------------------------- USER INTERFACE -------------------------------------
 
@@ -1311,8 +1304,6 @@ ui.root.widgets().reset([splitPanel]);
 // ensure that each initialization starts from 2022-3-24
 reanalyzeWithNewInterval();
 ```
-
----
 
 ## Reference
 
