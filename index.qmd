@@ -361,10 +361,10 @@ In Area A, structural damage was accurately detected without interference from s
 #### 3.3. T-Test Image Validation with UNOSAT Data
 
 In addition, we compared our outcome to UNOSAT Ground truth datasets to validate the model's performance to detect damaged buildings by spatially interactive matching. *(UNOSAT, cited in Dietrich et al., 2025)*
-
-##### Results
-
-###### Mariupol with 99% confidence interval
+\
+##### **Results**
+\
+**Table 1: Mariupol with 99% confidence interval**
 
 | Metric        | Value  |
 |:--------------|:-------|
@@ -378,7 +378,8 @@ In addition, we compared our outcome to UNOSAT Ground truth datasets to validate
 | Accuracy      | 0.6124 |
 | F1 Score      | 0.4684 |
 
-###### Mariupol with 95% confidence interval
+\
+**Table 2: Mariupol with 95% confidence interval**
 
 | Metric        | Value  |
 |:--------------|:-------|
@@ -392,7 +393,8 @@ In addition, we compared our outcome to UNOSAT Ground truth datasets to validate
 | Accuracy      | 0.5318 |
 | F1 Score      | 0.4589 |
 
-###### Kharkiv with 99% confidence interval
+\
+**Table 3: Kharkiv with 99% confidence interval**
 
 | Metric        | Value  |
 |:--------------|:-------|
@@ -406,7 +408,8 @@ In addition, we compared our outcome to UNOSAT Ground truth datasets to validate
 | Accuracy      | 0.5075 |
 | F1 Score      | 0.0234 |
 
-###### Kharkiv with 95% confidence interval
+\
+**Table 4: Kharkiv with 95% confidence interval**
 
 | Metric        | Value  |
 |:--------------|:-------|
