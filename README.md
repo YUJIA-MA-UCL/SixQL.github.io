@@ -6,7 +6,7 @@
 
 **🌍 The Application is available [here](https://ee-yiyaocui.projects.earthengine.app/view/ukraine-buildings-and-roads-damage-assessment).**
 
-**👩🏻‍💻 The full Earth Engine code is available [here](https://yujia-ma-ucl.github.io/SixQL.github.io/).**
+**👩🏻‍💻 The full Earth Engine code is available [here](https://code.earthengine.google.com/03e1d7092730174f543185a109971cbc?accept_repo=users%2Flittlevivif%2Fsiyuan).**
 
 ## Contribution: 
 
