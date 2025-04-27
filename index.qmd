@@ -121,7 +121,7 @@ var mariupolCenter = ee.Geometry.Point([37.59269, 47.09966]);
 Map.centerObject(mariupolCenter, 14);
 ```
 
-Based on the tutorial code from CASA0025 Week 9 (Ballinger, O., 2024. CASA0025 Week 9: Blast. \[online\] Available at: https://oballinger.github.io/CASA0025/W09_blast.html \[Accessed 27 April 2025\]), we used the following equation to compute the t-value for each pixel, comparing radar backscatter values before and after the war:
+Based on the tutorial code from CASA0025 Week 9 (Ballinger, O. (2024)), we used the following equation to compute the t-value for each pixel, comparing radar backscatter values before and after the war:
 
 $$ \Large t = {\frac{\overline{x_1}-\overline{x_2}} {\sqrt{\frac{s^2_1}{n_1} + \frac{s^2_2}{n_2}}}} $$
 
@@ -185,7 +185,7 @@ function ttest(s1, shock, pre_interval, post_interval) {
 }
 ```
 
-We filter Sentinel-1 radar images by selecting the VH polarization band and the most common orbit number, then separately process ASCENDING and DESCENDING orbits to reduce directional noise. Also, we use NDVI to reduce vegetation disturbance (NDVI \> 0.2: vegetation)(Wang, X. & Li, P., 2020. Extraction of urban building damage using spectral, height and corner information from VHR satellite images and airborne LiDAR data. ISPRS Journal of Photogrammetry and Remote Sensing, 159, pp.322-336.).
+We filter Sentinel-1 radar images by selecting the VH polarization band and the most common orbit number, then separately process ASCENDING and DESCENDING orbits to reduce directional noise. Also, we use NDVI to reduce vegetation disturbance (NDVI \> 0.2: vegetation)(Wang, X. and Li, P. (2020), USGS (2018)).
 
 ``` js
 // ---------------------------------------------- Satellite Image  ----------------------------------------------
@@ -330,3 +330,130 @@ Map.addLayer(
 // Add city boundary layer
 Map.addLayer(cityBoundaries, {}, 'adminboundaries');
 ```
+
+## Validations & Limitations
+
+| Color Icon | Color Name       | Damage Level        |
+|:-----------|:-----------------|:--------------------|
+| 🔵         | Blue              | No damage           |
+| 🟢         | Green             | Low damage          |
+| 🟡🟠        | Yellow / Orange    | Medium damage       |
+| 🔴         | Red               | High levels of damage |
+
+## Placebo Test
+
+![Placebo_Test_1](images/Placebo_Test_1.jpg)
+![Placebo_Test_2](images/Placebo_Test_2.jpg)
+
+The placebo test showed cumulative natural disturbances, stronger and seasonal in Kharkiv, and mainly industrial in Mariupol, with visible improvement after vegetation removal.
+
+## T-Test Image Validation by Detection
+
+In the t-test evaluations, our method effectively identified large-scale damage to buildings and roads, supported by the prior separation of built-up areas from open green spaces. 
+
+![T_Test_1](images/T_Test_1.jpg)
+![T_Test_2](images/T_Test_2.jpg)
+
+In Area A, structural damage was accurately detected without interference from surrounding vegetation; in Area B, major building footprint damage was captured with slight spatial overflow; and in Area C, gaps between adjacent row houses were clearly distinguished. On roads, the model correctly detected heavily damaged sections alongside buildings in Area D, but misclassified a functioning road in Area E as moderately damaged.
+
+---
+
+## T-Test Image Validation with UNOSAT Data
+
+In addition, we compared our outcome to UNOSAT data to validate the model's performance to detect damaged buildings. *(UNOSAT, cited in Dietrich et al., 2025)*
+
+---
+
+## Analysis
+
+```python
+# Label ground truth and predicted damage status
+ukr1_all = ukr1_all.copy()
+
+# Label ground truth: check if building is marked damaged by UNOSAT
+ukr1_all['gt_damaged'] = ukr1_all.geometry.apply(
+    lambda geom: ukr1_unosat.intersects(geom).any()
+)
+
+# Label prediction: check if building geometry intersects GEE detected damage
+ukr1_all['pred_damaged'] = ukr1_all.geometry.apply(
+    lambda geom: ukr1_gee.intersects(geom).any()
+)
+
+### Mariupol with 99% confidence interval
+
+| Metric        | Value  |
+|:--------------|:-------|
+| TP (True Positive)  | 3362   |
+| FP (False Positive) | 5800   |
+| FN (False Negative) | 1831   |
+| TN (True Negative)  | 8695   |
+| Precision     | 0.3670 |
+| Recall        | 0.6474 |
+| Specificity   | 0.5999 |
+| Accuracy      | 0.6124 |
+| F1 Score      | 0.4684 |
+
+---
+
+### Mariupol with 95% confidence interval
+
+| Metric        | Value  |
+|:--------------|:-------|
+| TP (True Positive)  | 3908   |
+| FP (False Positive) | 7932   |
+| FN (False Negative) | 1285   |
+| TN (True Negative)  | 6563   |
+| Precision     | 0.3301 |
+| Recall        | 0.7526 |
+| Specificity   | 0.4528 |
+| Accuracy      | 0.5318 |
+| F1 Score      | 0.4589 |
+
+---
+
+### Kharkiv with 99% confidence interval
+
+| Metric        | Value  |
+|:--------------|:-------|
+| TP (True Positive)  | 689    |
+| FP (False Positive) | 57286  |
+| FN (False Negative) | 182    |
+| TN (True Negative)  | 58532  |
+| Precision     | 0.0119 |
+| Recall        | 0.7910 |
+| Specificity   | 0.5054 |
+| Accuracy      | 0.5075 |
+| F1 Score      | 0.0234 |
+
+---
+
+### Kharkiv with 95% confidence interval
+
+| Metric        | Value  |
+|:--------------|:-------|
+| TP (True Positive)  | 751    |
+| FP (False Positive) | 72650  |
+| FN (False Negative) | 120    |
+| TN (True Negative)  | 43168  |
+| Precision     | 0.0102 |
+| Recall        | 0.8622 |
+| Specificity   | 0.3727 |
+| Accuracy      | 0.3764 |
+| F1 Score      | 0.0202 |
+
+Conclusively, using a 99% confidence interval improved predictive performance. In Mariupol, the F1 score reached 0.4684, demonstrating reasonable effectiveness, while Kharkiv's F1 score remained low at 0.0234.
+
+Performance limitations were likely linked to natural disturbances, pixel spill-over effects caused by the resolution constraints of 10-metre imagery, temporal mismatches with manual labels due to the cumulative nature of warfare destruction and unclear damage definitions, and missing road footprint and subtype data.
+
+While the method remains valuable for preliminary screening by international organisations, future improvements should prioritize refined preprocessing, clearer damage definitions, multi-temporal validation, and the potential integration of supervised learning techniques to enhance overall accuracy.
+
+
+
+---
+
+## Reference
+Ballinger, O. (2024) 9 Blast Damage Assessment (WWW) London: CASA (https://github.com/oballinger/CASA0025/; 12 Mar 2024).
+Dietrich, O., Peters, T., Sainte Fare Garnot, V. and others (2025) An open-source tool for mapping war destruction at scale in Ukraine using Sentinel-1 time series, Communications Earth & Environment, 6, 215. Available at: https://doi.org/10.1038/s43247-025-02183-7 [Accessed 27 April 2025].
+USGS, 2018. NDVI: The Foundation of Remote Sensing Phenology. [online] Available at: https://www.usgs.gov/special-topics/remote-sensing-phenology/science/ndvi-foundation-remote-sensing-phenology [Accessed 27 April 2025].
+Wang, X. and Li, P. (2020) Extraction of urban building damage using spectral, height and corner information from VHR satellite images and airborne LiDAR data, ISPRS Journal of Photogrammetry and Remote Sensing, 159.
