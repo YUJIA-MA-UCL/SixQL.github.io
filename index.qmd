@@ -360,9 +360,9 @@ In Area A, structural damage was accurately detected without interference from s
 
 #### 3.3. T-Test Image Validation with UNOSAT Data
 
-In addition, we compared our outcome to UNOSAT Ground truth datasets to validate the model's performance to detect damaged buildings by spatially interactive matching. *(UNOSAT, cited in Dietrich et al., 2025)*
+In addition, we compared our outcome to UNOSAT Ground truth datasets to validate the model's performance to detect damaged buildings by spatially interactive matching. *(UNOSAT, 2025)*
 \
-##### **Results**
+**Results**
 \
 **Table 1: Mariupol with 99% confidence interval**
 
@@ -1310,10 +1310,10 @@ reanalyzeWithNewInterval();
 
 ## Reference
 
-Ballinger, O. (2024) 9 Blast Damage Assessment (WWW) London: CASA (https://github.com/oballinger/CASA0025/; 12 Mar 2024).
+Ballinger, O. (2024). 9 Blast Damage Assessment (WWW) London: CASA (https://github.com/oballinger/CASA0025/; 12 Mar 2024).
 
-Dietrich, O., Peters, T., Sainte Fare Garnot, V. and others (2025) An open-source tool for mapping war destruction at scale in Ukraine using Sentinel-1 time series, Communications Earth & Environment, 6, 215. Available at: https://doi.org/10.1038/s43247-025-02183-7 [Accessed 27 April 2025].
+Dietrich, O., Peters, T., Sainte Fare Garnot, V. and others (2025). An open-source tool for mapping war destruction at scale in Ukraine using Sentinel-1 time series, Communications Earth & Environment, 6, 215. Available at: https://doi.org/10.1038/s43247-025-02183-7 [Accessed 27 April 2025].
 
-USGS, 2018. NDVI: The Foundation of Remote Sensing Phenology. [online] Available at: https://www.usgs.gov/special-topics/remote-sensing-phenology/science/ndvi-foundation-remote-sensing-phenology [Accessed 27 April 2025].
+USGS (2018). NDVI: The Foundation of Remote Sensing Phenology. [online] Available at: https://www.usgs.gov/special-topics/remote-sensing-phenology/science/ndvi-foundation-remote-sensing-phenology [Accessed 27 April 2025].
 
 Wang, X. and Li, P. (2020) Extraction of urban building damage using spectral, height and corner information from VHR satellite images and airborne LiDAR data, ISPRS Journal of Photogrammetry and Remote Sensing, 159.
