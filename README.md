@@ -12,6 +12,6 @@
 
 **Data collection and pre-processing: Ruiya LIN, Tianqi CHU**
 
-**Analysis: T-Test and Placebo Validation: Siyuan FENG, Yunqian YAO, Ruiya LIN**
+**Analysis: T-Test and Validation: Siyuan FENG, Yunqian YAO, Ruiya LIN**
 
 **User Interface and Visualisation: Yiyao CUI, Yujia MA**
