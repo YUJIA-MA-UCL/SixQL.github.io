@@ -188,7 +188,7 @@ print("total - damaged roads:", total_roads.size());
 Map.addLayer(
   composite_image,
   { min: 0, max: 4, opacity: 0.8, palette: palette },
-  "Buildings Change",
+  "T-test Result",
   false  // Not displayed by default
 );
 
@@ -357,9 +357,9 @@ var intervalSelect = ui.Select({
   onChange: function(value) {
     POST_INTERVAL = Number(value);
     reanalyzeWithNewInterval();
-    // 添加对左侧地图的更新
+    // update the left map
     copyLayersToLeftMap();
-    // 更新右侧地图上的建筑轮廓层
+    // update the right map
     setRightMapLayers();
   },
   style: {stretch: 'horizontal'}
@@ -427,10 +427,10 @@ var roadsCheckbox = ui.Checkbox({
 });
 
 var ttestCheckbox = ui.Checkbox({
-  label: 'T-Test',
+  label: 'T-test Result',
   value: false,  // Not selected by default
   onChange: function(isChecked) {
-    var layer = getLayerByName("Buildings Change");
+    var layer = getLayerByName("T-test Result");
     if (layer) {
       layer.setShown(isChecked);
     }
@@ -776,7 +776,7 @@ var composite_image = asc_des.where(ndvi_mask, 0);
   Map.addLayer(
     composite_image,
     { min: 0, max: 4, opacity: 0.8, palette: palette },
-    "Buildings Change",
+    "T-test Result",
     false
   );
 
@@ -826,7 +826,7 @@ function updateLayerVisibility() {
     roadsLayer.setShown(roadsCheckbox.getValue());
   }
   
-  var ttestLayer = getLayerByName("Buildings Change");
+  var ttestLayer = getLayerByName("T-test Result");
   if (ttestLayer) {
     ttestLayer.setShown(ttestCheckbox.getValue());
   }
@@ -949,7 +949,7 @@ function copyLayersToLeftMap() {
   leftMap.addLayer(
     composite_image,
     { min: 0, max: 4, opacity: 0.8, palette: palette },
-    "Buildings Change",
+    "T-test Result",
     false  // Not displayed by default
   );
   
@@ -999,7 +999,7 @@ function updateLeftMapLayerVisibility() {
     roadsLayer.setShown(roadsCheckbox.getValue());
   }
   
-  var ttestLayer = getLeftMapLayerByName("Buildings Change");
+  var ttestLayer = getLeftMapLayerByName("T-test Result");
   if (ttestLayer) {
     ttestLayer.setShown(ttestCheckbox.getValue());
   }
@@ -1097,7 +1097,7 @@ roadsCheckbox.onChange(function(isChecked) {
 });
 
 ttestCheckbox.onChange(function(isChecked) {
-  var layer = getLeftMapLayerByName("Buildings Change");
+  var layer = getLeftMapLayerByName("T-test Result");
   if (layer) {
     layer.setShown(isChecked);
   }
