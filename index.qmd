@@ -54,18 +54,279 @@ The application provides clear, visual maps of war damage, enabling the public a
 
 ## How it Works
 
-Use this section to explain how your application works using code blocks and text explanations (no more than 500 words excluding code):
+### Data Input and Processing
+
+We imported the vector data, including building footprints with building type information and 7.5-meter-wide rectangular road layers, and merged the data from two cities.
 
 ``` js
-Map.setCenter(35.51898, 33.90153, 15);
+// ------------------------------------------------- Import Data  ---------------------------------------------- 
+// Building footprint
+var buildings_ukr1 = ee.FeatureCollection("projects/ee-yiyaocui/assets/ukr1");
+var buildings_ukr7 = ee.FeatureCollection("projects/ee-yiyaocui/assets/ukr7");
+var buildings = buildings_ukr1.merge(buildings_ukr7);
 
-Map.setOptions("satellite");
-
-var aoi = ee.Geometry.Point(35.51898, 33.90153).buffer(3000);
+// Roads
+var roads_ukr1 = ee.FeatureCollection("projects/ee-yiyaocui/assets/osm_ukr1_buffer_50_75_8")
+  .filterBounds(aoi);
+var roads_ukr7 = ee.FeatureCollection("projects/ee-yiyaocui/assets/osm_ukr7_buffer_50_75_14")
+  .filterBounds(aoi);
+var roads = roads_ukr1.merge(roads_ukr7);
 ```
 
-You can include images:
+Then, we set up our area of interest (AOI), time range, and map’s centroids. For time range:
 
-![Pixelwise T-Test, 2018](images/beirut_change_2020.jpg)
+-   SHOCK_DATE: 2022-02-24, when Russia launched a full-scale military invasion of Ukraine.
+-   PRE_INTERVAL: 12-month pre-event period (baseline).
+-   POST_INTERVAL: 12-month post-event period (all assessment windows).
 
-and math: $$ \Large t = {\frac{\overline{x_1}-\overline{x_2}} {\sqrt{\frac{s^2_1}{n_1} + \frac{s^2_2}{n_2}}}} $$
+We defined a updateDateRanges() function to flexibly select an assessment window for the interactive tool.
+
+``` js
+// ------------------------------------------------- Set-up  ---------------------------------------------- 
+//AOI
+var cityBoundaries = ee.FeatureCollection("projects/ee-yiyaocui/assets/unosat_aois")
+  .style({
+    color: 'red', 
+    fillColor: '00000000',
+    width: 1 
+  });
+var aoi = cityBoundaries.geometry();
+var ukr1 = ee.Geometry.Rectangle([37.46, 47.06, 37.72, 47.16]);
+var ukr7 = ee.Geometry.Rectangle([36.09, 49.87, 36.46, 50.11]);  
+var aoi = ee.FeatureCollection([
+  ee.Feature(ukr1),
+  ee.Feature(ukr7)
+]).merge(ee.FeatureCollection([])).geometry();
+
+//Time 
+var SHOCK_DATE = "2022-02-24";
+var PRE_INTERVAL = 12;  // month before the event
+var POST_INTERVAL = 12; // month after the event
+// Calculate precise data filtering range, recalculate when POST_INTERVAL changes
+function updateDateRanges() {
+  var startDate = ee.Date(SHOCK_DATE).advance(-PRE_INTERVAL, "month").format("YYYY-MM-dd");
+  var endDate = ee.Date(SHOCK_DATE).advance(POST_INTERVAL, "month").format("YYYY-MM-dd");
+  return {startDate: startDate, endDate: endDate};
+}
+// Initialize date range
+var dateRanges = updateDateRanges();
+var startDate = dateRanges.startDate;
+var endDate = dateRanges.endDate; 
+
+// Centroid
+Map.centerObject(cityBoundaries, 8);
+
+// Centroid of mariupol 
+var mariupolCenter = ee.Geometry.Point([37.59269, 47.09966]);
+Map.centerObject(mariupolCenter, 14);
+```
+
+Based on the tutorial code from CASA0025 Week 9 (Ballinger, O., 2024. CASA0025 Week 9: Blast. \[online\] Available at: https://oballinger.github.io/CASA0025/W09_blast.html \[Accessed 27 April 2025\]), we used the following equation to compute the t-value for each pixel, comparing radar backscatter values before and after the war:
+
+$$ \Large t = {\frac{\overline{x_1}-\overline{x_2}} {\sqrt{\frac{s^2_1}{n_1} + \frac{s^2_2}{n_2}}}} $$
+
+Where:
+
+-   $\overline{x_1}$：mean of the pre-war imagery // code variables: pre-mean
+-   $\overline{x_2}$：mean of the post-war imagery // code variables: post_mean
+-   $s_1^2, s_2^2$：variance of the pre- and post-war data // code variables: pre_sd, post_sd; $s^2$ is implied as $sd^2$
+-   $n_1, n_2$：number of images before and after the war // code variables: pre_n, post_n
+
+This approach helps quantify whether observed changes are statistically significant and is particularly useful when ground-truth data is limited. Finally, a t-value greater than 2.5 indicates a significant change at the 99% confidence level.
+
+``` js
+// -------------------------------------- TTest function  ----------------------------------------------
+// t-test function (building analysis)
+function ttest(s1, shock, pre_interval, post_interval) {
+  // Convert event date to ee.Date object
+  var shock = ee.Date(shock);
+  // Filter pre-event images: from (shock - pre_interval months) to shock
+  var pre = s1.filterDate(
+    shock.advance(ee.Number(pre_interval).multiply(-1), "month"),
+    shock
+  );
+  // Filter post-event images: from shock to (shock + post_interval months)
+  var post = s1.filterDate(shock, shock.advance(post_interval, "month"));
+  // Calculate pre-event mean, standard deviation, and image count
+  var pre_mean = pre.mean();
+  var pre_sd = pre.reduce(ee.Reducer.stdDev());
+  var pre_n = ee.Number(pre.filterBounds(aoi).size());
+  // Calculate post-event mean, standard deviation, and image count
+  var post_mean = post.mean();
+  var post_sd = post.reduce(ee.Reducer.stdDev());
+  var post_n = ee.Number(post.filterBounds(aoi).size());
+  // Print pre and post event image counts for debugging
+  print('Pre-event images count: ', pre_n);
+  print('Post-event images count: ', post_n);
+  // Calculate pooled standard deviation
+  var pooled_sd = pre_sd
+    .multiply(pre_sd)
+    .multiply(pre_n.subtract(1))
+    .add(post_sd.multiply(post_sd).multiply(post_n.subtract(1)))
+    .divide(pre_n.add(post_n).subtract(2))
+    .sqrt();
+  // Calculate denominator part of t-test formula
+  var denom = pooled_sd.multiply(
+    ee.Number(1).divide(pre_n).add(ee.Number(1).divide(post_n)).sqrt()
+  );
+  // Calculate degrees of freedom (number of observations minus 2)
+  var df = pre_n.add(post_n).subtract(2);
+  print("Number of Images: ", df);
+  // Calculate t-value: absolute difference of means divided by denominator, minus 2
+  var change = post_mean
+    .abs()
+    .subtract(pre_mean.abs())
+    .divide(denom)
+    .abs()
+    .subtract(2.5);
+   
+  // Return t-value for each pixel
+  return change;
+}
+```
+
+We filter Sentinel-1 radar images by selecting the VH polarization band and the most common orbit number, then separately process ASCENDING and DESCENDING orbits to reduce directional noise. Also, we use NDVI to reduce vegetation disturbance (NDVI \> 0.2: vegetation)(Wang, X. & Li, P., 2020. Extraction of urban building damage using spectral, height and corner information from VHR satellite images and airborne LiDAR data. ISPRS Journal of Photogrammetry and Remote Sensing, 159, pp.322-336.).
+
+``` js
+// ---------------------------------------------- Satellite Image  ----------------------------------------------
+// Select Sentinel 1 images collection for analysis
+function filter_s1(path) {
+  var s1 = ee
+    .ImageCollection("COPERNICUS/S1_GRD")
+    .filter(ee.Filter.listContains("transmitterReceiverPolarisation", "VH"))
+    .filter(ee.Filter.eq("instrumentMode", "IW"))
+    .filter(ee.Filter.eq("orbitProperties_pass", path))
+    .filterBounds(aoi)
+    .filterDate(startDate, endDate)
+    .select("VH");
+
+  var orbit = s1
+    .aggregate_array("relativeOrbitNumber_start")
+    .reduce(ee.Reducer.mode());
+
+  s1 = s1.filter(ee.Filter.eq("relativeOrbitNumber_start", orbit));
+
+  // Return change in t-value
+  var change = ttest(s1, SHOCK_DATE, PRE_INTERVAL, POST_INTERVAL)
+  return change;
+}
+
+// Select sentinel image for calculation
+var ascending_image = filter_s1("ASCENDING");
+var descending_image = filter_s1("DESCENDING");
+var asc_des = ee.ImageCollection([ascending_image, descending_image])
+  .median() // use median to reduce impacts of outliers
+  .clip(aoi);
+
+// Add NDVI Mask
+var s2 = ee.ImageCollection('COPERNICUS/S2_SR')
+  .filterDate(startDate, SHOCK_DATE)
+  .filterBounds(aoi)
+  .select(['B4','B8'])
+  .median(); 
+var ndvi = s2.normalizedDifference(['B8','B4']).rename('NDVI');
+var ndvi_mask = ndvi.gt(0.2);
+
+// Generate Composite Image
+var composite_image = asc_des.where(ndvi_mask, 0);
+```
+
+Then we overlay the t-test output with building and road layers to estimate the number of damaged buildings and roads in each city. As roads are sensitive to neighboring pixels, we defined damaged roads with at least 50% significant pixels.
+
+``` js
+// ----------------------------------------------- Analysis  ----------------------------------------------
+
+// Select significant pixel where t-value is positive (95% confidence interval)
+var threshold = composite_image.updateMask(composite_image.gt(0));
+
+// Detect damaged buildings and roads
+var damaged_building = threshold.reduceRegions({
+  collection: buildings,
+  reducer: ee.Reducer.mean(),
+  scale: 10
+});
+
+var damaged_roads = threshold.reduceRegions({
+  collection: roads,
+  reducer: ee.Reducer.mean(),
+  scale: 10
+});
+
+// -------------------------------------- Calculation  ----------------------------------------------
+// Calculate the number of damaged buildings/roads by cities 
+//Buildings
+var mariupol_buildings = damaged_building.filterBounds(ukr1).filter(ee.Filter.gt("mean", 0));
+var kharkiv_buildings = damaged_building.filterBounds(ukr7).filter(ee.Filter.gt("mean", 0));
+var total_buildings = mariupol_buildings.merge(kharkiv_buildings);
+
+//Roads
+var mariupol_roads = damaged_roads.filterBounds(ukr1).filter(ee.Filter.gt("mean", 0.5));
+var kharkiv_roads = damaged_roads.filterBounds(ukr7).filter(ee.Filter.gt("mean", 0.5));
+var total_roads = mariupol_roads.merge(kharkiv_roads);
+
+// -------------------------------------- Visualization ----------------------------------------------
+// Define color palettes for damaged buildings and roads
+var palette = ["FFFFFF", "3b528b", "21918c", "5ec962", "fde725"];
+var building_palette = ["FFF3D6", "FFDD9E", "FFBE66", "FF9A3D", "FF7519", "FF5100", "FD3000"]; 
+
+// --------------------------------------  Layers ----------------------------------------------
+//ttest
+Map.addLayer(
+  composite_image,
+  { min: 0, max: 4, opacity: 0.8, palette: palette },
+  "Buildings Change",
+  false  // Not displayed by default
+);
+
+// Building Footprint Outline
+var empty_buildings = ee.Image().byte();
+var buildings_outline = empty_buildings.paint({
+  featureCollection: damaged_building,
+  color: "mean",
+  width: 1.5
+});
+
+// Draw road outline - add white border
+var empty_roads = ee.Image().byte();
+
+// First create a wider white border
+var roads_white_outline = empty_roads.paint({
+  featureCollection: damaged_roads,
+  color: 1,  // White
+  width: 9   // Wider than normal width to form a border
+});
+
+// Then create normal width colored roads
+var roads_outline = empty_roads.paint({
+  featureCollection: damaged_roads,
+  color: "mean",
+  width: 5
+});
+
+//  Mapping for checking but displayed by default for user interface design 
+// Add building outline layer
+Map.addLayer(
+  buildings_outline,
+  { palette: building_palette, min: 0.6, max: 2 },
+  "Damaged Buildings",
+  true  // Displayed by default
+);
+
+// First add white border layer
+Map.addLayer(
+  roads_white_outline,
+  { palette: ["ffffff"], min: 0, max: 1 },
+  "Roads White Outline",
+  false  // Not displayed by default
+);
+// Then add colored road layer
+Map.addLayer(
+  roads_outline,
+  { palette: building_palette, min: 0.6, max: 2 },
+  "Damaged Roads",
+  false  // Not displayed by default
+);
+
+// Add city boundary layer
+Map.addLayer(cityBoundaries, {}, 'adminboundaries');
+```
