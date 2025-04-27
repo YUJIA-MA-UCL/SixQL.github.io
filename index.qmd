@@ -10,7 +10,7 @@ What is the problem you’re trying to address using this application?
 
 This application addresses the need for transparent, cost-effective tools to assess infrastructure damage in urban areas affected by the Russia–Ukraine war. It focuses on Kharkiv and Mariupol, the two most affected cities, and estimates building and road damage using a lightweight, unsupervised pixel-wise t-test on freely available Sentinel-1 imagery. Although the war is ongoing, our analysis focuses on the year before and after February 24, 2022, when the full-scale invasion began. Unlike deep learning approaches requiring expensive optical imagery, this method supports repeatable, scalable, and interpretable analysis. The results can assist post-war reconstruction planning, guide humanitarian aid, and inform public understanding of urban destruction patterns in these cities.
 
-### End User
+### End User 
 
 Who are you building this application for? How does it address a need this community has?
 
@@ -236,7 +236,7 @@ Then we overlay the t-test output with building and road layers to estimate the 
 ``` js
 // ----------------------------------------------- Analysis  ----------------------------------------------
 
-// Select significant pixel where t-value is positive (95% confidence interval)
+// Select significant pixel where t-value is positive (99% confidence interval)
 var threshold = composite_image.updateMask(composite_image.gt(0));
 
 // Detect damaged buildings and roads
@@ -360,25 +360,11 @@ In Area A, structural damage was accurately detected without interference from s
 
 ## T-Test Image Validation with UNOSAT Data
 
-In addition, we compared our outcome to UNOSAT data to validate the model's performance to detect damaged buildings. *(UNOSAT, cited in Dietrich et al., 2025)*
+In addition, we compared our outcome to UNOSAT Ground truth datasets to validate the model's performance to detect damaged buildings by spatially interactive matching. *(UNOSAT, cited in Dietrich et al., 2025)*
 
 ---
 
-## Analysis
-The following chunk is a python script.
-```js
-# Label ground truth and predicted damage status
-ukr1_all = ukr1_all.copy()
-
-# Label ground truth: check if building is marked damaged by UNOSAT
-ukr1_all['gt_damaged'] = ukr1_all.geometry.apply(
-    lambda geom: ukr1_unosat.intersects(geom).any()
-)
-
-# Label prediction: check if building geometry intersects GEE detected damage
-ukr1_all['pred_damaged'] = ukr1_all.geometry.apply(
-    lambda geom: ukr1_gee.intersects(geom).any()
-)
+## Results
 
 ### Mariupol with 99% confidence interval
 
