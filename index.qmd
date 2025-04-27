@@ -42,6 +42,8 @@ We used Sentinel-1 SAR imagery to perform a pixel statistical test (t-test) for 
 
 How does your application's interface work to address the needs of your end user?
 
+The application provides clear, visual maps of war damage, enabling the public and researchers in remote sensing and disaster assessment to track the evolution of destruction and the recovery process over time. Layer comparison tools help Ukrainian government and humanitarian organizations visually identify specific areas are affected, supporting resource planning and decision-making for wartime relief and post-disaster reconstruction. The application also calculates the proportion of damaged buildings and roads, and visualizes the distribution of damage across different building types, offering reference statistics for researchers. All users can export damaged building GeoJSON data to conduct urban assessments and make data-driven decisions.
+
 ## The Application
 
 Replace the link below with the link to your application.
