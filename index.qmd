@@ -58,7 +58,7 @@ The application provides clear, visual maps of war damage, enabling the public a
 
 We imported the vector data, including building footprints with building type information and 7.5-meter-wide rectangular road layers, and merged the data from two cities.
 
-``` js
+```js
 // ------------------------------------------------- Import Data  ---------------------------------------------- 
 // Building footprint
 var buildings_ukr1 = ee.FeatureCollection("projects/ee-yiyaocui/assets/ukr1");
@@ -365,8 +365,8 @@ In addition, we compared our outcome to UNOSAT data to validate the model's perf
 ---
 
 ## Analysis
-
-```python
+The following chunk is a python script.
+```js
 # Label ground truth and predicted damage status
 ukr1_all = ukr1_all.copy()
 
@@ -441,8 +441,7 @@ ukr1_all['pred_damaged'] = ukr1_all.geometry.apply(
 | Specificity   | 0.3727 |
 | Accuracy      | 0.3764 |
 | F1 Score      | 0.0202 |
-
-```python
+```
 
 Conclusively, using a 99% confidence interval improved predictive performance. In Mariupol, the F1 score reached 0.4684, demonstrating reasonable effectiveness, while Kharkiv's F1 score remained low at 0.0234.
 
@@ -451,7 +450,7 @@ Performance limitations were likely linked to natural disturbances, pixel spill-
 While the method remains valuable for preliminary screening by international organisations, future improvements should prioritize refined preprocessing, clearer damage definitions, multi-temporal validation, and the potential integration of supervised learning techniques to enhance overall accuracy.
 
 ### User Interface
-
+The following part is the code for UI design.
 ```js
 // ------------------------------------- USER INTERFACE -------------------------------------
 
@@ -1325,12 +1324,16 @@ ui.root.widgets().reset([splitPanel]);
 
 // ensure that each initialization starts from 2022-3-24
 reanalyzeWithNewInterval();
-```js
+```
 
 ---
 
 ## Reference
+
 Ballinger, O. (2024) 9 Blast Damage Assessment (WWW) London: CASA (https://github.com/oballinger/CASA0025/; 12 Mar 2024).
+
 Dietrich, O., Peters, T., Sainte Fare Garnot, V. and others (2025) An open-source tool for mapping war destruction at scale in Ukraine using Sentinel-1 time series, Communications Earth & Environment, 6, 215. Available at: https://doi.org/10.1038/s43247-025-02183-7 [Accessed 27 April 2025].
+
 USGS, 2018. NDVI: The Foundation of Remote Sensing Phenology. [online] Available at: https://www.usgs.gov/special-topics/remote-sensing-phenology/science/ndvi-foundation-remote-sensing-phenology [Accessed 27 April 2025].
+
 Wang, X. and Li, P. (2020) Extraction of urban building damage using spectral, height and corner information from VHR satellite images and airborne LiDAR data, ISPRS Journal of Photogrammetry and Remote Sensing, 159.
